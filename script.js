@@ -123,4 +123,18 @@ function GameController(player1 = "X", player2 = "O") {
   return { playRound };
 }
 
-const game = GameController();
+function DisplayController() {
+  const renderGameboard = () => {
+    const board = document.querySelector(".board");
+    let html = "";
+    for (let i = 0; i < 9; i++) {
+      html += "<div class='cell'></div>";
+    }
+    board.innerHTML = html;
+  };
+
+  return { renderGameboard };
+}
+
+const display = DisplayController();
+display.renderGameboard();
