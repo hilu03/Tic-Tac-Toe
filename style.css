@@ -7,6 +7,10 @@
   font-weight: normal;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: "Comeback Home", sans-serif;
   font-size: 18px;
@@ -120,4 +124,12 @@ input {
 .result {
   font-size: 30px;
   text-align: center;
+}
+
+.cell {
+  position: relative;
+}
+
+svg {
+  position: absolute;
 }

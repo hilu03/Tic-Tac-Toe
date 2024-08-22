@@ -32,6 +32,10 @@ function Gameboard() {
 function GameController(xPlayer = "X", oPlayer = "O") {
   const board = Gameboard();
   let result = -1;
+  let winningCell = {
+    cells: [],
+    line: null
+  };
 
   const players = [
     {
@@ -85,8 +89,12 @@ function GameController(xPlayer = "X", oPlayer = "O") {
         return true;
       }
       if (board.getCell(i, columnIndex) !== mark) {
+        winningCell.cells = [];
+        winningCell.line = null;
         break;
       }
+      winningCell.cells.push({ rowIndex: i, columnIndex });
+      winningCell.line = "column";
     }
 
     // row
@@ -95,8 +103,12 @@ function GameController(xPlayer = "X", oPlayer = "O") {
         return true;
       }
       if (board.getCell(rowIndex, i) !== mark) {
+        winningCell.cells = [];
+        winningCell.line = null;
         break;
       }
+      winningCell.cells.push({ rowIndex, columnIndex: i });
+      winningCell.line = "row";
     }
 
     if (rowIndex === columnIndex) {
@@ -106,8 +118,12 @@ function GameController(xPlayer = "X", oPlayer = "O") {
           return true;
         }
         if (board.getCell(i, i) !== mark) {
+          winningCell.cells = [];
+          winningCell.line = null;
           break;
         }
+        winningCell.cells.push({ rowIndex: i, columnIndex: i });
+        winningCell.line = "diag";
       }
     }
     
@@ -118,8 +134,12 @@ function GameController(xPlayer = "X", oPlayer = "O") {
           return true;
         }
         if (board.getCell(i, 2 - i) !== mark) {
+          winningCell.cells = [];
+          winningCell.line = null;
           break;
         }
+        winningCell.cells.push({ rowIndex: i, columnIndex: 2 - i });
+        winningCell.line = "anti-diag";
       }
     }
     return false;
@@ -127,7 +147,9 @@ function GameController(xPlayer = "X", oPlayer = "O") {
 
   const getResult = () => result;
 
-  return { playRound, getActivePlayer, getResult };
+  const getWinningCell = () => winningCell;
+
+  return { playRound, getActivePlayer, getResult, getWinningCell };
 }
 
 function DisplayController() {
@@ -139,6 +161,7 @@ function DisplayController() {
     game = GameController(xPlayer, oPlayer);
     startButton.textContent = "new game";
     clearResult();
+    // clearWinningLine();
     renderGameboard();
   });
 
@@ -162,6 +185,7 @@ function DisplayController() {
           game.playRound(Number(cell.dataset.row), Number(cell.dataset.column));
           if (game.getResult() !== -1) {
             displayResult();
+            drawWinningLine();
           }
           else {
             displayPlayerTurn(); 
@@ -190,6 +214,51 @@ function DisplayController() {
     const result = document.querySelector(".result");
     result.textContent = "";
   }
+
+  const drawWinningLine = () => {
+    const line = game.getWinningCell().line;
+    const winningCells = game.getWinningCell().cells;
+    let cells = [];
+    let html = "";
+    winningCells.forEach(cell => {
+      cells.push(document.querySelector(`.cell[data-row="${cell.rowIndex}"][data-column="${cell.columnIndex}"]`));
+    });
+    if (line === "row") {
+      html = 
+      `
+        <svg height="100" width="100">
+          <line x1="0" y1="50" x2="100" y2="50" style="stroke:${game.getActivePlayer().mark === "X"? "blue": "red"};stroke-width:2" />
+        </svg>
+      `;
+    }
+    else if (line === "column") {
+      html = 
+      `
+        <svg height="100" width="100">
+          <line x1="50" y1="0" x2="50" y2="100" style="stroke:${game.getActivePlayer().mark === "X"? "blue": "red"};stroke-width:2" />
+        </svg>
+      `;
+    }
+    else if (line === "diag") {
+      html = 
+      `
+        <svg height="100" width="100">
+          <line x1="100" y1="100" x2="0" y2="0" style="stroke:${game.getActivePlayer().mark === "X"? "blue": "red"};stroke-width:2" />
+        </svg>
+      `;
+    }
+    else {
+      html =
+      `
+        <svg height="100" width="100">
+          <line x1="100" y1="0" x2="0" y2="100" style="stroke:${game.getActivePlayer().mark === "X"? "blue": "red"};stroke-width:2" />
+        </svg>
+      `;
+    }
+    cells.forEach(cell => {
+      cell.innerHTML += html;
+    });
+  };
 }
 
 const display = DisplayController();
