@@ -29,17 +29,17 @@ function Gameboard() {
   return { getBoard, drawMark, getCell, getMoveCount };
 }
 
-function GameController(player1 = "X", player2 = "O") {
+function GameController(xPlayer = "X", oPlayer = "O") {
   const board = Gameboard();
   let result = -1;
 
   const players = [
     {
-      name: player1,
+      name: xPlayer,
       mark: "X"
     },
     {
-      name: player2,
+      name: oPlayer,
       mark: "O"
     }
   ];
@@ -131,7 +131,17 @@ function GameController(player1 = "X", player2 = "O") {
 }
 
 function DisplayController() {
-  const game = GameController();
+  let game;
+  const startButton = document.querySelector(".start");
+  startButton.addEventListener("click", () => {
+    const xPlayer = document.querySelector("#x").value || "X";
+    const oPlayer = document.querySelector("#o").value || "O";
+    game = GameController(xPlayer, oPlayer);
+    startButton.textContent = "new game";
+    clearResult();
+    renderGameboard();
+  });
+
   const renderGameboard = () => {
     const board = document.querySelector(".board");
     let html = "";
@@ -163,22 +173,23 @@ function DisplayController() {
 
   const displayPlayerTurn = () => {
     const turn = document.querySelector(".turn");
-    turn.textContent = `${game.getActivePlayer().name}'s turn.`;
+    turn.innerHTML = `<span class="${game.getActivePlayer().mark}">${game.getActivePlayer().name}</span> 's turn.`;
   }
 
   const displayResult = () => {
     const result = document.querySelector(".result");
     if (game.getResult() === 0) {
-      result.textContent = "It'a tie!";
+      result.innerHTML = "It 's a tie!";
     }
     else {
-      result.textContent = `We got the winner. ${game.getActivePlayer().name} wins!`;
+      result.innerHTML = `We got the winner. <span class="${game.getActivePlayer().mark}">${game.getActivePlayer().name}</span> wins!`;
     }
   };
 
-
-  return { renderGameboard };
+  const clearResult = () => {
+    const result = document.querySelector(".result");
+    result.textContent = "";
+  }
 }
 
 const display = DisplayController();
-display.renderGameboard();
